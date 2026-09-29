@@ -1,0 +1,22 @@
+# Reference rules for an operator-managed Prometheus. Collector/authentication not configured.
+groups:
+  - name: hcs-api
+    rules:
+      - alert: HCSApiUnavailable
+        expr: up{job="hcs-api"} == 0
+        for: 2m
+        labels: {severity: critical}
+        annotations:
+          summary: HCS API telemetry target is unavailable
+      - alert: HCSApiErrors
+        expr: sum(rate(hcs_requests_total{status=~"5.."}[5m])) / clamp_min(sum(rate(hcs_requests_total[5m])), 0.001) > 0.05
+        for: 5m
+        labels: {severity: critical}
+        annotations:
+          summary: HCS HTTP server-error ratio exceeds 5 percent
+      - alert: HCSApiLatency
+        expr: histogram_quantile(0.95, sum by (le) (rate(hcs_request_duration_seconds_bucket[5m]))) > 0.5
+        for: 10m
+        labels: {severity: warning}
+        annotations:
+          summary: HCS aggregate request p95 exceeds the proposed 500ms target

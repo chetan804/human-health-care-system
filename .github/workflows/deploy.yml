@@ -1,0 +1,17 @@
+name: Deployment authorization gate (NOT CONFIGURED)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Refuse unapproved deployment
+        run: python scripts/deployment_gate.py
+# This intentionally fails, not silently skips or reports a fake successful deployment.
+# Replace only after target-specific design, verified images, approval and readiness evidence exist.

@@ -1,0 +1,47 @@
+# Reference application topology, NOT an approved production deployment.
+# Requires external DB/Redis, TLS ingress, runtime secret injection, KMS adapter and readiness approval.
+# With ENCRYPTION_BACKEND=unconfigured, protected-data operations correctly return 503.
+name: hcs-controlled-deployment
+x-runtime: &runtime
+  image: ${HCS_BACKEND_IMAGE:?Supply a verified immutable backend image digest}
+  env_file: ${HCS_RUNTIME_ENV_FILE:?Supply a protected runtime configuration file outside source control}
+  read_only: true
+  tmpfs: [/tmp]
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  init: true
+  restart: unless-stopped
+services:
+  backend:
+    <<: *runtime
+    environment:
+      APP_ENV: production
+      COOKIE_SECURE: "true"
+      ENCRYPTION_BACKEND: unconfigured
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=5)"]
+      interval: 15s
+      timeout: 6s
+      retries: 3
+  worker:
+    <<: *runtime
+    environment:
+      APP_ENV: production
+      COOKIE_SECURE: "true"
+      ENCRYPTION_BACKEND: unconfigured
+    command: [celery, -A, "backend.app.workers.entry:app", worker, --loglevel=warning, --concurrency=2]
+  scheduler:
+    <<: *runtime
+    environment:
+      APP_ENV: production
+      COOKIE_SECURE: "true"
+      ENCRYPTION_BACKEND: unconfigured
+    command: [celery, -A, "backend.app.workers.entry:app", beat, --loglevel=warning, --schedule=/tmp/celerybeat]
+  frontend:
+    image: ${HCS_FRONTEND_IMAGE:?Supply a verified immutable frontend image digest}
+    ports: ["127.0.0.1:8080:8080"]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    depends_on: [backend]

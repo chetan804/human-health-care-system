@@ -1,0 +1,9 @@
+{
+  "date": "2026-09-22",
+  "scope": "Sampled synthetic admin login/dashboard; not whole-app conformance",
+  "results": {
+    "login": [],
+    "desktop": [],
+    "mobile": []
+  }
+}

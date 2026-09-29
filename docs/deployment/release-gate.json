@@ -1,0 +1,5 @@
+{
+  "release_authorized": false,
+  "data_mode": "SYNTHETIC_ONLY",
+  "blockers": ["Jurisdiction and privacy policy not approved", "Production KMS adapter not configured", "VM/TLS/secret-management details absent", "Full platform functionality not implemented", "Independent security and operational acceptance not completed"]
+}

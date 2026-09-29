@@ -1,0 +1,75 @@
+name: Test
+on: [workflow_call]
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: hcs
+          POSTGRES_PASSWORD: ci-synthetic-only
+          POSTGRES_DB: hcs
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U hcs" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+      redis:
+        image: redis:7
+        ports: [6379:6379]
+    env:
+      DATABASE_URL: postgresql+psycopg://hcs:ci-synthetic-only@localhost:5432/hcs
+      TEST_DATABASE_URL: postgresql+psycopg://hcs:ci-synthetic-only@localhost:5432/hcs_test
+      MIGRATION_TEST_DATABASE_URL: postgresql+psycopg://hcs:ci-synthetic-only@localhost:5432/hcs_migration_test
+      REDIS_URL: redis://localhost:6379/0
+      APP_ENV: development
+      COOKIE_SECURE: 'false'
+      ENCRYPTION_BACKEND: local-development
+      DOCUMENT_STORAGE_BACKEND: database-development
+      LOGIN_LIMIT: '100'
+      RATE_LIMIT: '1000'
+      ALLOWED_ORIGINS: '["http://localhost:5173"]'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: npm, cache-dependency-path: frontend/package-lock.json}
+      - run: python -m pip install --upgrade pip==26.2.1 && pip install -r backend/requirements.lock
+      - name: Generate isolated test secrets and databases
+        run: |
+          python - <<'PY'
+          import os,secrets,base64,psycopg
+          values={'JWT_SECRET':secrets.token_urlsafe(64),'ENCRYPTION_KEY':base64.b64encode(os.urandom(32)).decode(),'HCS_DEV_PASSWORD':secrets.token_urlsafe(24)}
+          with open(os.environ['GITHUB_ENV'],'a') as stream:
+              for key,value in values.items():
+                  print(f'::add-mask::{value}')
+                  stream.write(f'{key}={value}\n')
+          with psycopg.connect('postgresql://hcs:ci-synthetic-only@localhost:5432/hcs',autocommit=True) as conn:
+              conn.execute('CREATE DATABASE hcs_test')
+              conn.execute('CREATE DATABASE hcs_migration_test')
+          PY
+      - run: python -m scripts.test_migrations
+      - run: python -m pytest --cov=backend/app --cov-fail-under=80 --cov-report=xml --junitxml=pytest-results.xml
+      - run: alembic upgrade head && alembic check
+      - run: python -m scripts.seed_development --confirm-synthetic-only
+      - run: npm --prefix frontend ci && npm --prefix frontend run build
+      - run: cd frontend && npx playwright install --with-deps chromium
+      - name: Run browser workflows against real API
+        run: |
+          uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --no-access-log > /tmp/hcs-api.log 2>&1 &
+          npm --prefix frontend run dev > /tmp/hcs-web.log 2>&1 &
+          celery -A backend.app.workers.entry:app worker -B --loglevel=warning --concurrency=2 --schedule=/tmp/hcs-beat > /tmp/hcs-worker.log 2>&1 &
+          curl --fail --retry 30 --retry-delay 1 --retry-connrefused http://localhost:8000/health/ready
+          curl --fail --retry 30 --retry-delay 1 --retry-connrefused http://localhost:5173
+          npm --prefix frontend run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-evidence
+          path: |
+            pytest-results.xml
+            coverage.xml
+            frontend/test-results/results.json

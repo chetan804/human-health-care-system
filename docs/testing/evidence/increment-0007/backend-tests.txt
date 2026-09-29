@@ -1,0 +1,99 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.14, pytest-9.1.1, pluggy-1.6.0
+rootdir: /home/user/human-health-care-system
+configfile: pyproject.toml
+testpaths: backend/tests
+plugins: anyio-4.15.1, cov-7.1.0
+collected 102 items
+
+backend/tests/test_architecture.py ..                                    [  1%]
+backend/tests/test_audit_clinical.py .....                               [  6%]
+backend/tests/test_documents.py .....................                    [ 27%]
+backend/tests/test_governance.py ..                                      [ 29%]
+backend/tests/test_incremental_edges.py ....                             [ 33%]
+backend/tests/test_operations.py ........................                [ 56%]
+backend/tests/test_patients.py ..................                        [ 74%]
+backend/tests/test_scheduling_billing.py .......                         [ 81%]
+backend/tests/test_security.py ...................                       [100%]
+
+=============================== warnings summary ===============================
+.venv/lib/python3.13/site-packages/fastapi/testclient.py:1
+  /home/user/human-health-care-system/.venv/lib/python3.13/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+.venv/lib/python3.13/site-packages/starlette/testclient.py:53
+  /home/user/human-health-care-system/.venv/lib/python3.13/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+backend/tests/test_architecture.py::test_routers_and_orchestration_cannot_import_database_or_repositories
+  /home/user/human-health-care-system/.venv/lib/python3.13/site-packages/alembic/config.py:604: DeprecationWarning: No path_separator found in configuration; falling back to legacy splitting on spaces, commas, and colons for prepend_sys_path.  Consider adding path_separator=os to Alembic config.
+    util.warn_deprecated(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+--------- generated xml file: /home/user/.local/hcs-current-pytest.xml ---------
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.13.14-final-0 _______________
+
+Name                                          Stmts   Miss  Cover
+-----------------------------------------------------------------
+backend/app/__init__.py                           0      0   100%
+backend/app/api/__init__.py                       0      0   100%
+backend/app/api/deps.py                          19      0   100%
+backend/app/api/v1/__init__.py                    0      0   100%
+backend/app/api/v1/documents.py                  20      0   100%
+backend/app/api/v1/governance.py                 13      0   100%
+backend/app/api/v1/operations.py                109      2    98%
+backend/app/api/v1/routes.py                    152      4    97%
+backend/app/core/__init__.py                      0      0   100%
+backend/app/core/body_limit.py                   28      2    93%
+backend/app/core/cache.py                         6      0   100%
+backend/app/core/config.py                       64      6    91%
+backend/app/core/database.py                     10      0   100%
+backend/app/core/encryption.py                   47      4    91%
+backend/app/core/errors.py                       12      0   100%
+backend/app/core/logging.py                      15      0   100%
+backend/app/core/security.py                     30      2    93%
+backend/app/execution/__init__.py                 0      0   100%
+backend/app/execution/account_security.py       150      6    96%
+backend/app/execution/administration.py         177     28    84%
+backend/app/execution/context.py                 17      0   100%
+backend/app/execution/documents.py              114      8    93%
+backend/app/execution/exchange.py               134      7    95%
+backend/app/execution/factor_checks.py           22      2    91%
+backend/app/execution/governance.py              41      2    95%
+backend/app/execution/healthcare.py             413     22    95%
+backend/app/execution/identity.py               123      5    96%
+backend/app/execution/patient_governance.py      73      6    92%
+backend/app/execution/probes.py                  10      0   100%
+backend/app/integrations/__init__.py              0      0   100%
+backend/app/integrations/document_store.py       22      1    95%
+backend/app/integrations/ports.py                46      9    80%
+backend/app/main.py                             105     10    90%
+backend/app/models/__init__.py                    0      0   100%
+backend/app/models/documents.py                  20      0   100%
+backend/app/models/entities.py                  194      0   100%
+backend/app/models/governance.py                 32      0   100%
+backend/app/models/operations.py                 78      0   100%
+backend/app/models/patient_history.py            12      0   100%
+backend/app/orchestration/__init__.py             0      0   100%
+backend/app/orchestration/workflows.py           13      0   100%
+backend/app/repositories/__init__.py              0      0   100%
+backend/app/repositories/store.py                29      0   100%
+backend/app/schemas/__init__.py                   0      0   100%
+backend/app/schemas/contracts.py                119      5    96%
+backend/app/schemas/documents.py                  7      0   100%
+backend/app/schemas/governance.py                33      3    91%
+backend/app/schemas/operations.py                68      1    99%
+backend/app/services/__init__.py                  0      0   100%
+backend/app/services/document_validation.py      54      6    89%
+backend/app/services/exchange.py                 44      3    93%
+backend/app/services/policies.py                 24      3    88%
+backend/app/services/totp.py                     14      0   100%
+backend/app/workers/__init__.py                   0      0   100%
+backend/app/workers/entry.py                      2      2     0%
+backend/app/workers/tasks.py                     58     10    83%
+-----------------------------------------------------------------
+TOTAL                                          2773    159    94%
+Coverage JSON written to file /home/user/.local/hcs-current-coverage.json
+Required test coverage of 80% reached. Total coverage: 94.27%
+======================= 102 passed, 3 warnings in 37.49s =======================

@@ -1,0 +1,11 @@
+{
+  "frontend_http": 200,
+  "proxied_readiness": 200,
+  "login_http": 200,
+  "patients_http": 200,
+  "patients_count": 8,
+  "expected_patient_count_matches": true,
+  "integration_statuses": [
+    "NOT_CONFIGURED"
+  ]
+}

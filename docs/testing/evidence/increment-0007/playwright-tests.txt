@@ -1,0 +1,19 @@
+
+> hcs-frontend@0.1.0 test:e2e
+> playwright test
+
+
+Running 10 tests using 1 worker
+
+  ✓   1 tests/workflows.spec.ts:16:1 › authenticated overview, registration, update, archive and session logout (4.6s)
+  ✓   2 tests/workflows.spec.ts:55:1 › server-backed availability, booking and cancellation (7.2s)
+  ✓   3 tests/workflows.spec.ts:78:1 › billing draft is not payment and supports a recorded dispute (1.7s)
+  ✓   4 tests/workflows.spec.ts:104:1 › auditor reads append-only trail and cannot browse patient directory (1.3s)
+  ✓   5 tests/workflows.spec.ts:118:1 › mobile navigation and accessible structure (2.4s)
+  ✓   6 tests/workflows.spec.ts:136:1 › desktop login and dashboard accessibility scans (2.3s)
+  ✓   7 tests/workflows.spec.ts:157:1 › facility management, channel preferences and account security are real API screens (5.5s)
+  ✓   8 tests/workflows.spec.ts:196:1 › CSV preview approval executes atomically through the real worker and export downloads (7.8s)
+  ✓   9 tests/workflows.spec.ts:241:1 › patient snapshot history and preservation hold lifecycle (1.7s)
+  ✓  10 tests/workflows.spec.ts:268:1 › assigned clinician uploads to quarantine; unavailable scanner never releases a document (28.5s)
+
+  10 passed (1.1m)

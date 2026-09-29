@@ -1,0 +1,32 @@
+{
+  "revision": "0007",
+  "synthetic_only": true,
+  "counts_match": true,
+  "source_counts": {
+    "patients": 16,
+    "patient_profile_versions": 20,
+    "clinical_documents": 1,
+    "development_document_objects": 1,
+    "identity_challenges": 0,
+    "multi_factors": 0,
+    "departments": 2,
+    "legal_holds": 2,
+    "legal_hold_events": 4,
+    "exchange_jobs": 4
+  },
+  "restored_counts": {
+    "patients": 16,
+    "patient_profile_versions": 20,
+    "clinical_documents": 1,
+    "development_document_objects": 1,
+    "identity_challenges": 0,
+    "multi_factors": 0,
+    "departments": 2,
+    "legal_holds": 2,
+    "legal_hold_events": 4,
+    "exchange_jobs": 4
+  },
+  "patient_decrypt": true,
+  "quarantine_object_decrypt_and_digest": true,
+  "rpo_rto_guarantee": false
+}

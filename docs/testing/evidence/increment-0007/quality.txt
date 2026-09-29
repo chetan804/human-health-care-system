@@ -1,0 +1,9 @@
+.venv/bin/ruff check backend scripts
+All checks passed!
+.venv/bin/ruff format --check backend scripts
+80 files already formatted
+npm --prefix frontend run typecheck
+
+> hcs-frontend@0.1.0 typecheck
+> tsc -b
+

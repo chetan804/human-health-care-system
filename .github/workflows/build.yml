@@ -1,0 +1,28 @@
+name: Build
+on: [workflow_call]
+permissions:
+  contents: read
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: {service: [backend, frontend]}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build immutable local image
+        env:
+          SERVICE: ${{ matrix.service }}
+        run: docker build -f "infrastructure/docker/${SERVICE}.Dockerfile" -t "hcs-${SERVICE}:${GITHUB_SHA}" .
+      - uses: aquasecurity/trivy-action@0.35.0
+        with:
+          image-ref: hcs-${{ matrix.service }}:${{ github.sha }}
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+      - name: Save verified build artifact
+        env:
+          SERVICE: ${{ matrix.service }}
+        run: docker save "hcs-${SERVICE}:${GITHUB_SHA}" | gzip > "hcs-${SERVICE}.tar.gz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: image-${{ matrix.service }}
+          path: hcs-${{ matrix.service }}.tar.gz

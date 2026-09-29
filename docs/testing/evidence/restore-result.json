@@ -1,0 +1,27 @@
+{
+  "data_mode": "SYNTHETIC_ONLY",
+  "backup_encrypted_bytes": 144272,
+  "backup_seconds": 0.2,
+  "restore_seconds": 0.33,
+  "revision": "0005",
+  "row_counts": {
+    "hcs": {
+      "patients": 12,
+      "patient_profile_versions": 14,
+      "appointments": 11,
+      "medical_record_versions": 0,
+      "invoices": 1,
+      "model_versions": 0
+    },
+    "hcs_latest_restore": {
+      "patients": 12,
+      "patient_profile_versions": 14,
+      "appointments": 11,
+      "medical_record_versions": 0,
+      "invoices": 1,
+      "model_versions": 0
+    }
+  },
+  "patient_ciphertext_decrypts": true,
+  "limitations": "Tiny synthetic snapshot; wrapping key retained separately; no production RPO/RTO, PITR, object storage or disaster recovery guarantee."
+}

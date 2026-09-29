@@ -1,0 +1,6 @@
+BLOCKED: Jurisdiction and privacy policy not approved
+BLOCKED: Production KMS adapter not configured
+BLOCKED: VM/TLS/secret-management details absent
+BLOCKED: Full platform functionality not implemented
+BLOCKED: Independent security and operational acceptance not completed
+Deployment is not configured or authorized. No deployment was attempted.

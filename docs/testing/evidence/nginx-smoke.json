@@ -1,0 +1,9 @@
+{
+  "data_mode": "SYNTHETIC_ONLY",
+  "runtime": "latest built Nginx image, non-root, read-only root, tmpfs /tmp, all capabilities dropped, no-new-privileges",
+  "spa_deep_link_http": 200,
+  "proxied_readiness_http": 200,
+  "csp_present": true,
+  "nosniff_present": true,
+  "limitations": "Local container smoke against native development API, not staging or production deployment."
+}

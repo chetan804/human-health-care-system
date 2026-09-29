@@ -1,0 +1,29 @@
+name: Mandatory checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: python -m pip install --upgrade pip==26.2.1 && pip install -r backend/requirements.lock
+      - run: ruff check backend scripts && ruff format --check backend scripts
+      - run: npm --prefix frontend ci && npm --prefix frontend run typecheck
+      - run: cd frontend && npx prettier --check src tests vite.config.ts playwright.config.ts
+  test:
+    needs: quality
+    uses: ./.github/workflows/test.yml
+  security:
+    needs: quality
+    uses: ./.github/workflows/security.yml
+  build:
+    needs: [test, security]
+    uses: ./.github/workflows/build.yml

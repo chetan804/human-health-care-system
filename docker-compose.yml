@@ -1,0 +1,77 @@
+name: hcs-development
+x-backend: &backend
+  build:
+    context: .
+    dockerfile: infrastructure/docker/backend.Dockerfile
+  env_file: .env
+  environment:
+    DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    REDIS_URL: redis://redis:6379/0
+  init: true
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: [ALL]
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?Generate .env first}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Generate .env first}
+      POSTGRES_DB: ${POSTGRES_DB:?Generate .env first}
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    ports: ["127.0.0.1:5432:5432"]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  redis:
+    image: redis:7-alpine
+    command: [redis-server, --appendonly, "yes"]
+    volumes: [redis-data:/data]
+    ports: ["127.0.0.1:6379:6379"]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  migrate:
+    <<: *backend
+    command: [alembic, upgrade, head]
+    depends_on:
+      postgres: {condition: service_healthy}
+  backend:
+    <<: *backend
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=5)"]
+      interval: 15s
+      timeout: 6s
+      retries: 5
+  worker:
+    <<: *backend
+    command: [celery, -A, "backend.app.workers.entry:app", worker, --loglevel=warning, --concurrency=2]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+  scheduler:
+    <<: *backend
+    command: [celery, -A, "backend.app.workers.entry:app", beat, --loglevel=warning, --schedule=/tmp/celerybeat]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+  frontend:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/frontend.Dockerfile
+      target: development
+    environment:
+      API_PROXY_TARGET: http://backend:8000
+    ports: ["5173:5173"]
+    depends_on:
+      backend: {condition: service_healthy}
+volumes:
+  postgres-data:
+  redis-data:
